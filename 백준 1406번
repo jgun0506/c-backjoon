@@ -1,0 +1,117 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+struct NODE {
+    char data;
+    struct NODE* next;
+    struct NODE* prev;
+};
+
+void addnode(struct NODE* target, char data)
+{
+    struct NODE* new = malloc(sizeof(struct NODE));
+    new->data = data;
+    
+    new->next = target->next;
+    new->prev = target;
+
+    if (target->next != NULL)
+        target->next->prev = new;
+    target->next = new;
+}
+
+void removeNode(struct NODE* target)
+{
+    struct NODE* removeNode = target;
+    (removeNode->prev)->next = removeNode->next;
+    if (removeNode->next != NULL)
+        (removeNode->next)->prev = removeNode->prev;
+
+    free(removeNode);
+
+}
+
+
+int main(void) {
+           
+
+    char s[100001];
+    int m;
+    
+    scanf("%s", s);
+    scanf("%d", &m);
+
+    //1.입력받은 문자열로 연결리스트 만들기
+
+    int len = strlen(s);
+    
+
+    struct NODE* head = malloc(sizeof(struct NODE));
+    head->next = NULL;
+    
+    struct NODE* cur = head;
+    
+
+    for (int i = 0; i < len; i++) {
+        addnode(cur, s[i]);
+        cur = cur->next;
+    }
+
+    for (int i = 0; i < m; i++) {
+        char x;
+        char a;
+        scanf(" %c", &a);//서식지정자에 공백을 넣은이유??
+
+        if (a == 'L') {
+            if (cur != head) {
+                cur = cur->prev;
+            }
+        }
+
+        if (a == 'D') {
+            if ((cur->next) != NULL) {
+                cur = cur->next;
+            }
+        }
+        if (a == 'B') {//현재 커서에 해당하는노드를 삭제
+
+            if (cur != head) {
+                struct NODE* cur2 = cur;
+                removeNode(cur);
+                cur = cur2->prev;
+            }
+        }
+
+        if (a == 'P') {//현재커서의 뒤에 노드추가
+
+            scanf(" %c", &x);
+            addnode(cur, x);
+            cur = cur->next;
+        }
+    }
+    cur = head->next;
+
+
+    while (cur != NULL)
+    {
+        printf("%c", cur->data);     
+        cur = cur->next;          
+    }
+
+    cur = head->next;     
+    while (cur != NULL)   
+    {
+        struct NODE* next = cur->next; 
+        free(cur);       
+        cur = next;      
+    }
+
+    free(head);
+
+    return 0;
+}
