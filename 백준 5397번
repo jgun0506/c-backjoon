@@ -1,0 +1,106 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+struct NODE {
+    char data;
+    struct NODE* next;
+    struct NODE* prev;
+};
+void addNode(struct NODE* target, char data)//타켓노드 뒤에 노드추가
+{
+    struct NODE* new = malloc(sizeof(struct NODE));
+    new->data = data;
+
+    new->next = target->next;
+    new->prev = target;
+
+    if (target->next != NULL) {
+        (target->next)->prev = new;
+    }
+    target->next = new;
+
+}
+
+void removeNode(struct NODE* target)
+{
+    struct NODE* removeNode = target;
+    (removeNode->prev)->next = removeNode->next;
+    if (removeNode->next != NULL)
+        (removeNode->next)->prev = removeNode->prev;
+
+    free(removeNode);
+
+}
+
+
+int main(void) {
+    
+    int l;
+    
+    scanf("%d", &l);//몇번반복?
+   
+    for (int i = 0; i < l; i++) {
+        struct NODE* head = malloc(sizeof(struct NODE));
+        head->next = NULL;
+        head->prev = NULL;
+       
+        struct NODE* cur = head;//커서
+
+        char s[1000001];
+        
+        scanf("%s", s);
+        
+        //입력한 문자열을 연결리스트로 만들어주기
+        int len = strlen(s);
+        
+
+        for (int j = 0; j < len; j++) {
+            if (s[j] == '<') {//커서 왼쪽이동
+                if (cur->prev != NULL) {
+                    cur = cur->prev;
+                }
+            }
+            else if (s[j] == '>') {//커서 오른쪽이동
+                if (cur->next != NULL) {
+                    cur = cur->next;
+                }
+            }
+            
+            else if (s[j] == '-') {//백스페이스
+                if (cur->prev != NULL) {
+                    struct NODE* cur2 = cur;
+                    cur = cur->prev;
+                    removeNode(cur2);
+                }
+            }
+
+            else {//알파벳과 숫자일경우
+                addNode(cur, s[j]);
+                cur = cur->next;
+            }
+        }
+        cur = head->next;
+
+        while (cur != NULL) {
+            printf("%c", cur->data);
+            cur = cur->next;
+        }
+        printf("\n");
+
+        cur = head->next;
+
+        while (cur != NULL) {
+            struct NODE* next = cur->next;
+            free(cur);
+            cur = next;  
+        }
+        free(head);
+    }
+
+    return 0;
+}
