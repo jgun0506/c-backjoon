@@ -1,0 +1,79 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+struct NODE {    // 연결 리스트의 노드 구조체
+    struct NODE* next;    // 다음 노드의 주소를 저장할 포인터
+    struct NODE* prev;
+    int data;             
+};
+
+void addnode(struct NODE* target, int data)//타겟노드 다음에추가
+{
+    struct NODE* new = malloc(sizeof(struct NODE));
+    new->data = data;
+
+    new->next = target->next;
+    new->prev = target;
+
+    if (target->next != NULL) {
+        (target->next)->prev = new;
+    }
+    target->next = new;
+}
+void removeNode(struct NODE* target)
+{
+    struct NODE* removeNode = target;
+    (removeNode->prev)->next = removeNode->next;
+    if (removeNode->next != NULL)
+        (removeNode->next)->prev = removeNode->prev;
+
+    free(removeNode);
+
+}
+
+
+int main(void) {
+    
+    int n,k;
+    scanf("%d %d", &n, &k);
+
+    struct NODE* head = malloc(sizeof(struct NODE));
+    head->next = NULL;
+    head->prev = NULL;
+    struct NODE* curr = head;
+
+    for (int i = 1; i <= n; i++) {
+        addnode(curr, i);
+        curr = curr->next;
+    }
+    (head->next)->prev = curr;
+    curr->next = head->next;
+    
+
+    curr = head->next;
+    printf("<");
+
+    int s[5001];
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < k; j++) {
+            curr = curr->next;
+        }
+        s[i] = (curr->prev)->data;
+        removeNode(curr->prev);
+    }
+    for (int i = 0; i < n - 1; i++) {
+        printf("%d, ", s[i]);
+    }
+    printf("%d>", s[n - 1]);
+   
+
+    free(head);
+    
+    return 0;
+}
