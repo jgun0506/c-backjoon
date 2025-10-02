@@ -1,0 +1,108 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+
+int dat[2 * 1000005 + 1];
+int head = 1000005, tail = 1000005;
+bool y = true;
+bool ban = true;
+
+void R() {//배열 뒤집기
+    if (ban) {
+        int temp = tail;
+        tail = head - 1;
+        head = temp - 1;
+    }
+    else {
+        int temp = tail;
+        tail = head + 1;
+        head = temp + 1;
+    }
+    ban = !ban;
+
+}
+void D() {//첫번째 수 버리기
+    if (head == tail) {
+        y = false;
+
+    }
+    else {
+        if (ban)
+            head++;
+        else
+            head--;
+    }
+}
+
+
+int main(void) {
+
+
+    int T;
+    scanf("%d", &T);
+
+    for (int i = 0; i < T; i++) {
+
+        y = true;
+        ban = true;
+        head = 1000005, tail = 1000005;
+
+        char p[100001];
+        scanf("%s", p);//명령어 배열
+
+        int n;
+        scanf("%d", &n);//배열의 길이
+
+        char s[400001];
+        scanf("%s", s);
+        char* ptr = strtok(s, "[],");
+
+        while (ptr != NULL) {
+            int num = 0;
+            for (int k = 0; ptr[k]; k++) {
+                num = num * 10 + ptr[k] - '0';
+            }
+            dat[tail++] = num;
+            ptr = strtok(NULL, "[],");
+        }
+
+        int len = strlen(p);//명령어문자열의 길이
+
+        for (int j = 0; j < len; j++) {
+            if (p[j] == 'R') {
+                R();
+            }
+            else if (p[j] == 'D') {
+                D();
+            }
+        }
+
+
+        if (y) {
+            printf("[");//처음 원소 출력을 dat[head]>=1을 조건을 잡으면 쓰레기값나올수잇음
+
+            for (int j = 0; j < abs(tail - head); j++) {
+                if (j == 0) {
+                    printf("%d", dat[head]);
+                    continue;
+                }
+                if (ban)
+                    printf(",%d", dat[head + j]);
+                else
+                    printf(",%d", dat[head - j]);
+
+            }
+            printf("]");
+        }
+        else
+            printf("error");
+
+        printf("\n");
+    }
+    return 0;
+}
