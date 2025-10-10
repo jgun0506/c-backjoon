@@ -1,0 +1,96 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+
+
+struct P {
+    short x;//행
+    short y;//열
+};
+
+bool vis[502][502];//방문여부
+
+
+int dx[4] = { 1,0,-1,0 };
+int dy[4] = { 0,1,0,-1 };//상하좌우 네방향
+
+int head = 0;
+int tail = 0;
+
+void push(struct P Q[], int x,int y) {//큐에 요소를 넣어줘야함
+    Q[tail].x = x;
+    Q[tail].y = y;
+    tail++;
+}
+
+void pop() {
+    head++;
+}
+
+
+int main()
+{
+    int count = 0;
+    int maxArea = 0;
+    int area = 0;
+    int n , m;//n:행,m:열
+    scanf("%d %d", &n, &m);
+
+    int board[502][502];//1:색칠,0:색칠x
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            scanf("%d", &board[i][j]);
+        }
+    }
+    struct P* Q =malloc(sizeof(struct P) * n * m);
+    if (!Q) return 1;
+
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            head = 0;
+            tail = 0;
+            if (board[i][j] == 1 && vis[i][j] == 0) {
+                count++;
+                vis[i][j] = 1;
+                push(Q, i, j);//Q에 시작점인 (i,j) 삽입
+                area = 1;
+                while (head != tail) {
+                    struct P cur = Q[head];
+                    pop();
+                    
+                    for (int dir = 0; dir < 4; dir++) {//상하좌우칸 살피기
+                        int nx = cur.x + dx[dir];
+                        int ny = cur.y + dy[dir];
+
+                        if (nx < 0 || nx >= n || ny < 0 || ny >= m)//범위밖일경우 스킵
+                            continue;
+                        if (vis[nx][ny] || board[nx][ny] != 1)//이미방문했거나 파란색칸아닐경우
+                            continue;
+                        vis[nx][ny] = 1;//(nx,ny)방문함을 표시
+                        area++;
+                        push(Q, nx, ny);
+                    }
+                   
+                }
+                if (area > maxArea) {
+                    maxArea = area;
+                }
+            }
+        }
+    }
+
+    printf("%d\n", count);
+    printf("%d", maxArea);
+
+    return 0;
+
+}
+
+
+
