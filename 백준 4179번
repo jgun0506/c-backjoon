@@ -1,0 +1,124 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+/*
+1.F와 J가 동시에 전파할수도잇음>>F우선으로 push
+
+또다른풀이법:
+불에대한 bfs하고 지훈이bfs처리후 불이 특정칸에 옮겨가는
+시간과 지훈이가 걸리는 시간을 비교한뒤 지훈이가 먼저도착하면 이동가능
+불이먼저도착하거나 동시에도착할경우 이동불가능
+*/
+
+
+
+struct P {
+    int x;
+    int y;
+};
+
+char board[1002][1002];
+
+int dx[4] = { 0,1,0,-1 };
+int dy[4] = { 1,0,-1,0 };
+
+int dist[1002][1002];
+
+int head = 0;
+int tail = 0;
+
+void pop() {
+    head++;
+}
+
+void push(struct P Q[], int x, int y) {
+    Q[tail].x = x;
+    Q[tail].y = y;
+    tail++;
+}
+
+int main()
+{
+    int r, c;
+    scanf("%d %d", &r, &c);
+
+    struct P* Q = malloc(sizeof(struct P) * r * c);
+    if (!Q) return 1;
+
+
+    for (int i = 0; i < r; i++) {        
+        scanf("%s", board[i]);
+    }
+
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c; j++) {
+            if (board[i][j] == 'F') {
+                push(Q, i, j);
+            }
+        }
+    }
+
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c; j++) {
+            if (board[i][j] == 'J') {
+                push(Q, i, j);
+            }
+        }
+    }
+    
+
+    while (head != tail) {
+        struct P cur = Q[head];
+        pop();
+
+        for (int i = 0; i < 4; i++) {
+            int nx = cur.x + dx[i];
+            int ny = cur.y + dy[i];
+        
+            if (nx < 0 || nx >= r || ny < 0 || ny >= c)
+                continue;
+            if (board[nx][ny] != '.')
+                continue;
+
+            push(Q, nx, ny);
+            
+            if (board[cur.x][cur.y] == 'F') {
+                board[nx][ny] = 'F';
+            }
+            else if (board[cur.x][cur.y] == 'J') {
+                board[nx][ny] = 'J';
+            }
+           
+            dist[nx][ny] = dist[cur.x][cur.y] + 1;
+        }
+    }
+
+    bool x = 0;
+    int min = 1000*1000;//거리의 최댓값
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c; j++) {
+            if (board[i][j] == 'J') {
+                if (i == r - 1 || j == c - 1 || i == 0 || j == 0) {
+                    if (min > dist[i][j]) {                     
+                        x = 1;
+                        min = dist[i][j];
+                    }
+                }
+            }
+        }
+    }
+
+    if (x == 0)
+        printf("IMPOSSIBLE");
+    else
+        printf("%d", min + 1);
+    return 0;
+
+}
+
+
