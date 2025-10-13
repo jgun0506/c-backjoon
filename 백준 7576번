@@ -1,0 +1,116 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+
+
+/*
+1.시작점이 여러개인경우 대처법
+2.전역변수로 배열선언하면 0으로초기화됨
+
+7569번은 이문제의 3차원버전
+
+*/
+
+
+struct P {
+    int x;
+    int y;
+};
+
+int box[1002][1002];
+
+int dx[4] = { 0,1,0,-1 };
+int dy[4] = { 1,0,-1,0 };
+
+int dist[1002][1002];
+
+int head = 0;
+int tail = 0;
+
+void pop() {
+    head++;
+}
+
+void push(struct P Q[], int x, int y) {
+    Q[tail].x = x;
+    Q[tail].y = y;
+    tail++;
+}
+
+int main()
+{
+    int n, m;
+
+    scanf("%d %d", &m, &n);
+
+    struct P* Q = malloc(sizeof(struct P) * n * m);
+    if (!Q) return 1;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            scanf("%d", &box[i][j]);
+        }
+    }
+    for (int i = 0; i < 1002; i++) {//-1로 초기화
+        for (int j = 0; j < 1002; j++) {
+            dist[i][j] = -1;
+        }
+    }
+    for (int i = 0; i < n; i++) {//익은 감을 시작점으로 설정
+        for (int j = 0; j < m; j++) {
+            if (box[i][j] == 1) {
+                push(Q, i, j);
+                dist[i][j] = 0;
+            }
+        }
+    }
+
+  
+
+    while (head != tail) {
+        struct P cur = Q[head];
+        pop();
+        
+        for (int i = 0; i < 4; i++) {
+            int nx = cur.x + dx[i];
+            int ny = cur.y + dy[i];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m)
+                continue;
+            if (box[nx][ny] == -1 || dist[nx][ny] != -1)//익은감 or 감이 없을경우
+                continue;
+            box[nx][ny] = 1;
+            dist[nx][ny] = dist[cur.x][cur.y] + 1;
+            push(Q, nx, ny);
+        }
+    }
+    
+    int ans = 0;
+
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (box[i][j] == 0) {
+                ans = -1;
+                break;
+            }
+
+            else if (ans < dist[i][j]) {
+                ans = dist[i][j];
+            }
+        }
+        if (ans == -1)
+            break;
+    }
+    printf("%d", ans);
+
+    return 0;
+
+}
+
+
