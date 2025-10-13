@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include <math.h>
 
-
+//1.큐의 크기설정법 (크기가 너무커서 컴파일안될때 대처법-->malloc)
 
 struct P {
     short x;//행
