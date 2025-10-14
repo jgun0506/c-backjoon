@@ -1,0 +1,140 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+/*
+반복되는 코드를 어떻게 줄여나갈까
+
+*/
+
+
+struct P {
+    int x;
+    int y;
+};
+
+int dx[4] = { 0,1,0,-1 };
+int dy[4] = { 1,0,-1,0 };
+
+int head = 0;
+int tail = 0;
+
+char board[101][101];
+int vis[101][101];
+
+void push(struct P *Q,int x,int y) {
+    Q[tail].x = x;
+    Q[tail].y = y;
+    tail++;
+    vis[x][y] = 1;
+}
+
+void pop() {
+    head++;
+}
+
+int main()
+{
+    int n;
+    int count = 0;
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        scanf("%s", board[i]);
+    }
+
+    struct P Q[101 * 101];
+    for (int p = 0; p < 2; p++) {
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                head = 0;
+                tail = 0;
+                if (vis[i][j] == 0 && board[i][j] == 'R') {
+                    push(Q, i, j);
+                    count++;
+
+                    while (head != tail) {
+                        struct P cur = Q[head];
+                        pop();
+
+                        for (int dir = 0; dir < 4; dir++) {
+                            int nx = cur.x + dx[dir];
+                            int ny = cur.y + dy[dir];
+
+                            if (nx < 0 || nx >= n || ny < 0 || ny >= n)
+                                continue;
+                            if (vis[nx][ny] == 1 || board[nx][ny] != 'R')
+                                continue;
+
+                            push(Q, nx, ny);
+
+                        }
+                    }
+                }
+
+                else if (vis[i][j] == 0 && board[i][j] == 'G') {
+                    push(Q, i, j);
+                    count++;
+
+                    while (head != tail) {
+                        struct P cur = Q[head];
+                        pop();
+                        for (int dir = 0; dir < 4; dir++) {
+                            int nx = cur.x + dx[dir];
+                            int ny = cur.y + dy[dir];
+
+                            if (nx < 0 || nx >= n || ny < 0 || ny >= n)
+                                continue;
+                            if (vis[nx][ny] == 1 || board[nx][ny] != 'G')
+                                continue;
+
+                            push(Q, nx, ny);
+
+                        }
+                    }
+                }
+                else if (vis[i][j] == 0 && board[i][j] == 'B') {
+                    push(Q, i, j);
+                    count++;
+
+                    while (head != tail) {
+                        struct P cur = Q[head];
+                        pop();
+                        for (int dir = 0; dir < 4; dir++) {
+                            int nx = cur.x + dx[dir];
+                            int ny = cur.y + dy[dir];
+
+                            if (nx < 0 || nx >= n || ny < 0 || ny >= n)
+                                continue;
+                            if (vis[nx][ny] == 1 || board[nx][ny] != 'B')
+                                continue;
+
+                            push(Q, nx, ny);
+
+                        }
+                    }
+                }
+            }
+        }
+        printf("%d ", count);
+
+        for (int i = 0; i < n; i++) {//판 초기화
+            for (int j = 0; j < n; j++) {
+                vis[i][j] = 0;
+                if (board[i][j] == 'G') {//적록색약이니 G와R 동일시
+                    board[i][j] = 'R';
+                }
+            }
+        }
+
+    }
+
+    return 0;
+}
+
+
