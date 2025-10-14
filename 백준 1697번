@@ -1,0 +1,56 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+/*
+1.1차원 bfs의 경우 대처법
+2.여러 연산을 for문으로 처리할때 배열에 계산식넣어서 for문 돌리기
+*/
+
+int stack[200001];
+int s[200001];
+int head = 0;
+int tail = 0;
+
+void push(int x) {
+    s[tail] = x;
+    tail++;
+}
+void pop() {
+    head++;
+}
+
+int main()
+{
+    int n, k;
+
+    scanf("%d %d", &n, &k);
+    
+    push(n);
+
+    if (n == k) {
+        printf("%d", 0);
+        return 0;
+    }
+
+    while (head != tail) {
+        int cur = s[head];
+        int nxs[3] = { cur + 1,cur - 1,2 * cur };//여기가 중요
+        pop();
+
+        for (int i = 0; i < 3; i++) {
+            if (nxs[i] < 0 || nxs[i] >= 200001 || stack[nxs[i]] != 0)
+                continue;
+            stack[nxs[i]] = stack[cur] + 1;
+            push(nxs[i]);
+        }
+    }
+    printf("%d", stack[k]);
+    return 0;
+}
+
+
