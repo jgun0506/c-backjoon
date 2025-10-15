@@ -1,0 +1,123 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+/*
+1.불이먼저 퍼져야함
+2.마지막에 최소시간 출력하는 방법(if문을 최대한 이용하여 반복되는코드 줄여나가기)
+3.계단식 if문 보다 조건식 안에 읽기좋을정도로 비교,논리연산자 적극 사용하자
+*/
+
+struct P {
+    int x;
+    int y;
+};
+
+int dx[4] = { 1,0,-1,0 };
+int dy[4] = { 0,1,0,-1 };
+
+int head = 0;
+int tail = 0;
+
+char board[1001][1001];
+
+int sang[1001][1001];//상근이의 걸린시간
+
+void push(struct P *Q,int x,int y) {
+    Q[tail].x = x;
+    Q[tail].y = y;
+    tail++;
+}
+
+void pop() {
+    head++;
+}
+
+int main()
+{
+    int t;
+    scanf("%d", &t);
+
+    while (t--) {
+
+        memset(sang, -1, sizeof(sang));
+
+        head = 0;
+        tail = 0;
+        bool T = false;
+
+        int w, h;
+        scanf("%d %d", &w, &h);
+        struct P* Q = malloc(sizeof(struct P) * w * h);
+
+        for (int i = 0; i < h; i++) {//빌딩지도입력
+            scanf("%s", board[i]);
+        }
+
+        for (int i = 0; i < h; i++) {//불을 큐에 넣어주기
+            for (int j = 0; j < w; j++) {
+                if (board[i][j] == '*') {
+                    push(Q, j, i);
+                }
+            }
+        }
+
+        for (int i = 0; i < h; i++) {//상근이를 큐에 넣어주기
+            for (int j = 0; j < w; j++) {
+                if (board[i][j] == '@') {
+                    push(Q, j, i);
+                    sang[i][j] = 0;
+                }
+            }
+        }
+
+        while (head != tail) {
+            struct P cur = Q[head];
+            pop();
+            for (int i = 0; i < 4; i++) {
+                int nx = cur.x + dx[i];
+                int ny = cur.y + dy[i];
+
+                if (nx < 0 || nx >= w || ny < 0 || ny >= h)
+                    continue;
+                if (board[ny][nx] == '#')
+                    continue;
+
+                if (board[cur.y][cur.x] == '*') {
+                    if (board[ny][nx] == '.') {
+                        push(Q, nx, ny);                   
+                        board[ny][nx] = '*';
+                    }
+                }
+
+                else if (board[cur.y][cur.x] == '@') {
+                    if (board[ny][nx] == '.') {
+                        push(Q, nx, ny);
+                        sang[ny][nx] = sang[cur.y][cur.x] + 1;
+                        board[ny][nx] = '@';
+                    }
+                }
+            }
+        }
+        int min = -1;
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                if (i == 0 || i == h - 1 || j == 0 || j == w - 1) {
+                    if (sang[i][j] != -1 && (min == -1 || sang[i][j] < min)) {//처음 min에 입력하는경우 -1이어도 통과가능하게설정
+                            min = sang[i][j];
+                    }
+                }
+            }
+        }
+        if (min >= 0) 
+            printf("%d\n", min + 1);
+        else 
+            printf("IMPOSSIBLE\n");
+        free(Q);
+    }
+    return 0;
+}
