@@ -1,0 +1,80 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+int s[100001];
+int state[100001];//방문안한사람:0,방문한사람:1,사이클소속:2,사이클소속X=3
+
+const int NOT_VISITED = 0;
+const int VISITED = 1;
+const int IN_CYCLE = 2;
+const int OUT_CYCLE = 3;
+
+void check(int x) {
+    int cur = x;
+
+    while (1) {
+        state[cur] = VISITED;
+        cur = s[cur];
+
+        if (state[cur] == VISITED && cur == x) {//처음x가 원래부터 사이클포함요소일때
+            while (state[cur] != IN_CYCLE) {
+                state[cur] = IN_CYCLE;
+                cur = s[cur];
+            }
+            return;//사이클요소들 모두 IN_CYCLE로 바꿔주고 끝남
+        }
+
+        if (state[cur] == VISITED && cur != x) {//처음x가 사이클바깥요소일때
+            while (state[cur] != IN_CYCLE) {//사이클요소 모두 IN_CYCLE
+                state[cur] = IN_CYCLE;
+                cur = s[cur];
+            }
+            cur = x;
+            while (state[cur] != IN_CYCLE) {//x부터 사이클직전요소까지 OUT_CYCLE
+                state[cur] = OUT_CYCLE;
+                cur = s[cur];
+            }
+            return;
+        }
+
+        if (state[cur] == IN_CYCLE || state[cur] == OUT_CYCLE) {
+            cur = x;
+            while (state[cur] == VISITED) {
+                state[cur] = OUT_CYCLE;
+                cur = s[cur];
+            }
+            return;
+        }
+    }
+}
+int main()
+{
+    int t;
+    scanf("%d", &t);
+
+    while (t--) {
+        int n;
+        scanf("%d", &n);
+        int count = 0;
+        memset(state, 0, sizeof(state));
+
+        for (int i = 1; i <= n; i++) {
+            scanf("%d", &s[i]);
+        }
+        int ans = 0;
+        
+        for (int i = 1; i <= n; i++) {
+            if (state[i] == NOT_VISITED) check(i);//모든학생들의 모둠가입여부 확인
+        }
+        for (int i = 1; i <= n; i++) {
+            if (state[i] == OUT_CYCLE) ans++;//확인후 모둠가입안된경우를 더하기
+        }
+        printf("%d\n", ans);   
+    }
+    return 0;
+}
