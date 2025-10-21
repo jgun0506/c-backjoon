@@ -1,0 +1,45 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+/*
+1.반복되는 연산->변수 적극적으로 사용
+2.종료조건 어떻게설정할까
+*/
+
+int z(int n, int r, int c) {
+    
+    if (n == 0)
+        return 0;
+
+    int half = 1 << (n - 1);
+    int block = half * half;
+
+    if (r < half && c < half) {//왼위
+        return z(n - 1, r, c);
+    }
+    else if (r < half && c >= half) {//우위
+        return block + z(n - 1, r, c - half);
+    }
+    else if (r >= half && c < half) {//좌아래
+        return 2 * block + z(n - 1, r - half, c);
+    }
+    else {//우아래
+        return 3 * block + z(n - 1, r - half, c - half);
+    }
+}
+
+int main()
+{
+    int n, r, c;
+    scanf("%d %d %d", &n, &r, &c);
+
+    printf("%d", z(n, r, c));
+
+
+    return 0;
+}
