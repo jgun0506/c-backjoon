@@ -1,0 +1,39 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+/*
+1.오버플로우를 막기위해서 가능한 작은수에서 나머지구하기
+2.type설정 잘하기
+3.int a=a*a*a%c 의 값이 21억을 넘지않아도 a*a*a에서 오버플로우가난다면 
+  %c를 연산하기전에 오버플로우가남 (연산에도 순서가있음)  
+*/
+long long pow(long long a, long long b, long long c) {
+    if (b == 1) {
+        return a % c;
+    }
+    
+    long long mol = pow(a, b / 2, c);
+    mol = mol * mol % c;
+
+    if (b % 2 == 0) {
+        return mol;
+    }
+
+    return mol * a % c;
+}
+
+int main()
+{
+
+    long long a, b, c;
+    scanf("%lld %lld %lld", &a, &b, &c);
+
+    printf("%lld", pow(a, b, c));
+    
+    return 0;
+}
