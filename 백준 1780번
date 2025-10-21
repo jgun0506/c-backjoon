@@ -1,0 +1,61 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+/*
+1.행,렬 구분잘해라 ex)s[x][y] 행:x,열:y
+2.무엇을 매개변수로 설정할까
+*/
+
+int ans[3];//-1,0,1
+int s[2200][2200];
+
+void di(int x,int y, int n) {
+    int a = s[x][y];
+    bool t = true;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {//만약 모든종이가 같은수라면??
+            if (a != s[x + i][y + j]) {
+                t = false;
+                break;
+            }
+        }
+        if (t == false)
+            break;
+    }   
+
+    if (t == true) {//모든종이가 같은경우
+        ans[a + 1]++;
+        return;
+    }
+
+    for (int i = 0; i < 3; i++) {//9등분해주기
+        for (int j = 0; j < 3; j++) {
+            di(x+i* n / 3, y+j* n / 3, n / 3);
+        }
+    }
+}
+
+int main()
+{
+    int n;
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &s[i][j]);
+        }
+    }
+
+    di(0,0, n);
+
+    for (int i = 0; i < 3; i++) {
+        printf("%d\n", ans[i]);
+    }
+
+    return 0;
+}
