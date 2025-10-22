@@ -1,0 +1,50 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+/*
+1.넣어야할 정보가 2가지일경우 -> 하나의 정보로 초기화시키고 arr바꾸기
+2.
+*/
+
+char arr[6562][6562];
+
+void star(int x, int y, int n) {
+    if (n == 3) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (i != 1 || j != 1)
+                    arr[x + i][y + j] = '*';
+            }
+        }
+        return;
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (i != 1 || j != 1)
+                star(x + i * n / 3, y + j * n / 3, n / 3);
+        }
+    }
+    return;
+}
+
+int main()
+{
+    int n;
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {//공백으로 초기화할경우 재귀함수돌릴때 굳이 공백추가안해도됨
+        for (int j = 0; j < n; j++) {
+            arr[i][j] = ' ';
+        }
+    }
+    star(0, 0, n);
+
+    for (int i = 0; i < n; i++) {
+        printf("%s\n", arr[i]);
+    }
+    return 0;
+}
