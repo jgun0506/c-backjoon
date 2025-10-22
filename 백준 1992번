@@ -1,0 +1,70 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+/*
+1.괄호를 어떻게닫을까?
+2.문자 하나출력 방법??(printf의 첫번쨰인자로 const char * 가와야함(문자열))
+    1.putchar('a')
+    2.printf("%c",'a')
+    3.printf("a")
+*/
+
+int board[64][64];
+int N;
+
+void tree(int x, int y, int n) {
+    
+    int a = board[x][y];
+    bool T = true;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (a != board[x + i][y + j]) {
+                T = false;
+                break;
+            }
+        }
+        if (T == false)
+            break;
+    }
+    /*1.성립안될시 괄호열기
+      2.성립시 숫자출력
+      3.오른쪽밑 에서 성립시 괄호닫기
+    */
+
+    int half = n / 2;
+
+    if (T == true) {
+        printf("%d", a);
+        return;
+    }
+
+    printf("(");
+    tree(x, y, half);
+    tree(x, y + half, half);
+    tree(x + half, y, half);
+    tree(x + half, y + half, half);
+    printf(")");
+}
+
+int main()
+{
+    scanf("%d", &N);
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            scanf("%1d", &board[i][j]);
+        }
+    }
+ 
+    tree(0, 0, N);    
+    //오른쪽 밑칸에서 괄호를 닫아주자
+
+
+    return 0;
+}
