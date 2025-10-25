@@ -1,0 +1,39 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+int n, m;
+int arr[10];
+bool isused[10];
+
+void func(int k) {//현재 k개까지 선택함 즉 k+1번째 추가해야함
+    if (k == m) {//현재까지 m개 선택했으면 모두 선택된것이니 출력
+        for (int i = 0; i < m; i++) {
+            printf("%d ", arr[i]);
+        }
+        printf("\n");
+        return;
+    }
+
+    for (int i = 1; i <= n; i++) {
+        if (!isused[i]) {//선택된적 없는 숫자라면
+            arr[k] = i;//k+1번째에 넣기
+            isused[i] = 1;//사용된 숫자표시
+            func(k + 1);//그다음 숫자 선택하기
+            isused[i] = 0;//선택후 다시 되돌아와 다른세계선 갈준비 ㅋㅋ
+        }
+    }
+}
+
+int main()
+{
+    scanf("%d %d", &n, &m);
+        
+    func(0);//처음은 아무것도 선택된게 없으니 0
+    
+    return 0;
+}
