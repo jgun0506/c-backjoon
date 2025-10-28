@@ -1,0 +1,49 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+/*
+1.일차원 배열로 2차원 배열 어떻게 나타낼까??
+2.대각선에 위치한 점들의 abs(x좌표의차)==abs(y좌표의 차)
+*/
+
+
+int arr[15];
+int n;
+int cnt = 0;
+
+void func(int k) {//k번째 행까지 실행하고 k+1번째에 퀸 놓을차례
+    if (k == n) {
+        cnt++;
+        return;
+    }
+
+    for (int j = 0; j < n; j++) {//arr[k] 후보들 탐색(k+1번째 행의 열)
+        bool ok = true;
+        for (int i = 0; i < k; i++) {//j:k+1번째 퀸을 놓을 열
+            if (arr[i] == j || abs(k - i) == abs(arr[i] - j)) {
+                ok = false;
+                break;
+            }   
+        }
+        if (ok) {
+            arr[k] = j;
+            func(k + 1);
+        }
+    }
+}
+
+int main()
+{
+    scanf("%d", &n);
+
+    func(0);
+
+    printf("%d", cnt);
+
+    return 0;
+}
