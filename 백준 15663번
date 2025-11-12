@@ -1,0 +1,71 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+/*
+깊이가 깊어지면 직전의 원소와 비교는 가능하지만 두칸이상 깊이가 차이나면
+비교가 불가능 해지는데 앞전 정보들을 어떻게 누적할수잇을까
+->>isused로 arr의 원소 사용여부를 확인하자
+
+
+*/
+
+int n, m;
+int arr[10];
+int num[10];
+bool isused[10];//추가 하기전에 입력받은 배열의 원소의 사용여부판단
+
+void func(int k) {
+    if (k == m) {
+        for (int i = 0; i < m; i++) {
+            printf("%d ", arr[i]);
+        }
+        printf("\n");
+        return;
+    }   
+
+    int tmp = 0;//같은 깊이의 원소를 비교하기 위해 tmp
+    for (int i = 0; i < n; i++) {
+        if (!isused[i] && tmp != num[i]) {
+            isused[i] = true;
+            arr[k] = num[i];
+            tmp = num[i];
+            func(k + 1);
+            isused[i] = false;
+        }
+    }
+}
+int compare(const void *pa, const void *pb) {
+    int a = *(const int*)pa;
+    int b = *(const int*)pb;
+
+    if (a > b) {
+        return 1;
+    }
+
+    if (a < b) {
+        return -1;
+    }
+    return 0;
+
+}
+
+int main()
+{
+    scanf("%d %d", &n, &m);
+
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &num[i]);
+    }
+    //일단 arr에 있는 수들을 오름차순으로 정리하자
+
+    qsort(num, n, sizeof(int), compare);
+
+    func(0);
+
+    return 0;
+}
