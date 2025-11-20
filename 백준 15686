@@ -1,0 +1,98 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+int n, m;
+int city[60][60];
+int now_shop;//현재 매장 갯수
+int home_count;//집의 갯수
+int min_distance = 1000000;
+int should;//쳐내야하는 가게의 갯수
+
+struct P {
+    int y;
+    int x;
+};
+
+struct P chiken[20];
+struct P home[100];
+
+int distance() {//현재 도시의치킨거리 
+    int city_dis = 0;
+
+    for (int i = 0; i < home_count; i++) {
+        int min = 100;
+        for (int j = 0; j < now_shop; j++) {
+            if (city[chiken[j].y][chiken[j].x] == 2) {
+                int dis = abs(home[i].x - chiken[j].x) + abs(home[i].y - chiken[j].y);
+                if (min > dis) {
+                    min = dis;
+                }
+            }
+            
+        }
+        city_dis += min;
+    }
+    return city_dis;
+}
+
+void func(int k,int nx,int ny) {//k:지금까지 쳐낸 매장갯수
+    if (k == should) {
+        int city_distance = distance();
+        if (city_distance < min_distance) {
+            min_distance = city_distance;
+        }
+        return;
+    }
+
+    if (nx == n) {
+        nx = 0;
+        ny++;
+    }
+
+
+    for (int i = ny; i < n; i++) {
+        if (i != ny) {
+            nx = 0;
+        }
+        for (int j = nx; j < n; j++) {
+            if (city[i][j] == 2) {
+                city[i][j] = 0;
+                
+                func(k + 1, j + 1, i);
+                city[i][j] = 2;
+             
+            }
+        }
+    }
+}
+
+int main()
+{
+    scanf("%d %d", &n, &m);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &city[i][j]);
+            if (city[i][j] == 2) {
+                chiken[now_shop] = (struct P){ i,j };
+                now_shop++;
+            }
+            else if (city[i][j] == 1) {
+                home[home_count] = (struct P){ i,j };
+                home_count++;
+            }
+        }
+    }
+    should = now_shop - m;
+    func(0, 0, 0);
+
+    printf("%d", min_distance);
+
+    return 0;
+}
