@@ -1,0 +1,113 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+struct P {
+    short x;
+    short y;
+};
+
+char board[12][7];
+int dx[4] = { 0,1,0,-1 };
+int dy[4] = { 1,0,-1,0 };
+int head, tail;
+
+bool is = false;//연쇄 발생 여부
+
+void push(struct P Q[], int x, int y) {
+    Q[tail].x = x;
+    Q[tail].y = y;
+    tail++;
+}
+void pop() {
+    head++;
+}
+
+void gravity() {
+    for (int j = 0; j < 6; j++) {
+        char temp[13];
+        int length = 0;
+        for (int i = 0; i < 12; i++) {
+            if (board[i][j] != '.') {
+                temp[length++] = board[i][j];
+                board[i][j] = '.';
+            }
+        }
+        for (int k = 0; k < length; k++) {
+            board[11 - k][j] = temp[length - k - 1];
+        }
+    }
+}
+
+int func(int k) {//k는 연쇄한 횟수
+
+    if (k != 0 && is == false) 
+        return k - 1;
+
+    int vis[12][7] = { 0, };
+    bool b = false;
+
+    for (int i = 0; i < 12; i++) {
+        for (int j = 0; j < 6; j++) {
+            if (board[i][j] == '.')//뿌요 아니면 스킵
+                continue;
+
+            char temp[12][7];//뿌요 터뜨리기 전 상태
+            memcpy(temp, board, sizeof(board));
+       
+            char buyo = board[i][j];//넓이탐색 시작
+            struct P Q[100];
+            vis[i][j] = 1;
+            head = 0;
+            tail = 0;
+            board[i][j] = '.';
+            int area = 1;//넓이가 4가 넘어야 터뜨릴수 잇음
+            push(Q, i, j);
+            
+            while (tail != head) {
+                struct P cur = Q[head];
+                pop();
+
+                for (int dir = 0; dir < 4; dir++) {
+                    int nx = cur.x + dx[dir];
+                    int ny = cur.y + dy[dir];
+
+                    if (nx < 0 || nx >= 12 || ny < 0 || ny >= 6)
+                        continue;
+                    if (vis[nx][ny] || buyo != board[nx][ny])
+                        continue;
+                    
+                    push(Q, nx, ny);
+                    vis[nx][ny] = 1;
+                    area++;
+                    board[nx][ny] = '.';
+                }
+            }
+            if (area < 4) //4가 넘지 못햇을경우 원래 문자 되돌리기
+                memcpy(board, temp, sizeof(temp));          
+            else 
+                b = true;     
+            
+        }
+    }
+    gravity();
+    is = b;
+    func(k + 1);
+}
+
+int main(){
+
+    for (int i = 0; i < 12; i++) {
+        scanf("%s", board[i]);
+    }
+    int a = func(0);
+
+    printf("%d", a);
+
+    return 0;
+}
