@@ -1,0 +1,73 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+/*
+1.최악의 경우 스택의 크기는 얼마일까?
+2.한번 이동한 스택은 변경하기 까다로우니 다른방법 탐색하자
+*/
+
+
+int n, w, l;
+int truck[1002];
+int bridge[20200];
+int head;
+int tail;
+int t;
+
+
+void push(int a) {
+    bridge[tail] = a;
+    tail++;
+    t++;
+}
+
+void pop() {
+    head++;
+}
+
+int sum(int arr[]) {
+    int a = 0;
+    for (int i = head; i < tail; i++) {
+        a += bridge[i];
+    }
+    return a;
+}
+
+int main(){
+    
+    scanf("%d %d %d", &n, &w, &l);
+
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &truck[i]);
+    }
+
+    tail = w;//tail을 길이만큼 설정
+   
+
+    int weight = sum(bridge);
+    int num = 0;
+
+    while (weight != 0 || num < n) {
+        pop();//가장 앞에 있는 트럭 옮기기
+        weight = sum(bridge);
+
+        if (num < n && weight + truck[num] <= l) {
+            push(truck[num]);
+            num++;
+        }
+        else {
+            push(0);
+        }
+        weight = sum(bridge);
+    }
+
+    printf("%d", t);
+
+    return 0;
+}
