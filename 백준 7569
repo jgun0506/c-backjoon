@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
 #include <stdio.h>
 #include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
 #include <string.h>
@@ -6,27 +7,21 @@
 #include <stddef.h>
 #include <math.h>
 
-/*
-1.break는 하나의 반복문만 탈출가능함
-*/
-
-
 struct P {
-    int x;
-    int y;
-    int z;
+    short x;
+    short y;
+    short z;
 };
 
-int dx[6] = { 0,1,0,-1,0,0 };
-int dy[6] = { 1,0,-1,0,0,0 };
+int box[102][102][102];
+int m, n, h;
+int head, tail;
+
+int dx[6] = { 1,0,-1,0 ,0,0 };
+int dy[6] = { 0,1,0,-1 ,0,0 };
 int dz[6] = { 0,0,0,0,1,-1 };
-int head = 0;
-int tail = 0;
 
-int box[101][101][101];
-int dist[101][101][101];
-
-void push(struct P *Q,int z,int y,int x) {
+void push(struct P Q[], int z, int x, int y) {
     Q[tail].x = x;
     Q[tail].y = y;
     Q[tail].z = z;
@@ -37,83 +32,64 @@ void pop() {
     head++;
 }
 
-int main()
-{
-    int n, m, h;
+int day() {//0이 포함되있을시 return 0;
+    int max = 0;
+    for (int k = 0; k < h; k++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (box[k][i][j] == 0) {
+                    return 0;
+                }
+                if (max < box[k][i][j]) {
+                    max = box[k][i][j];
+                }
+            }
+        }
+    }
+    return max;
+}
 
+int main(){
     scanf("%d %d %d", &m, &n, &h);
 
-    struct P* Q = malloc(sizeof(struct P) * m * n * h);
+    struct P* Q = malloc(h * m * n * sizeof(struct P));
+    if (!Q) return 1;
 
     for (int k = 0; k < h; k++) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 scanf("%d", &box[k][i][j]);
-            }
-        }
-    }
-    for (int z = 0; z < 101; z++) {
-        for (int y = 0; y < 101; y++) {//-1로 초기화
-            for (int x = 0; x < 101; x++) {
-                dist[z][y][x] = -1;
-            }
-        }
-    }
-    for (int z = 0; z < h; z++) {
-        for (int y = 0; y < n; y++) {//익은감 시작점
-            for (int x = 0; x < m; x++) {
-                if (box[z][y][x] == 1) {
-                    push(Q, z, y, x);
-                    dist[z][y][x] = 0;
+                if (box[k][i][j] == 1) {//시작점 설정
+                    push(Q, k, i, j);
                 }
             }
         }
     }
-
     while (head != tail) {
         struct P cur = Q[head];
         pop();
 
-        for (int i = 0; i < 6; i++) {
-            int nx = cur.x + dx[i];
-            int ny = cur.y + dy[i];
-            int nz = cur.z + dz[i];
+        for (int dir = 0; dir < 6; dir++) {
+            int nx = cur.x + dx[dir];
+            int ny = cur.y + dy[dir];
+            int nz = cur.z + dz[dir];
 
-            if (nx < 0 || nx >= m || ny < 0 || ny >= n || nz < 0 || nz >= h)
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m || nz < 0 || nz >= h)
                 continue;
-            if (box[nz][ny][nx] == -1 || dist[nz][ny][nx] != -1)//익은감 or 감이 없을경우
+            if (box[nz][nx][ny] != 0)
                 continue;
-            box[nz][ny][nx] = 1;
-            dist[nz][ny][nx] = dist[cur.z][cur.y][cur.x] + 1;
-            push(Q, nz, ny, nx);
+
+            box[nz][nx][ny] = box[cur.z][cur.x][cur.y] + 1;
+            push(Q, nz, nx, ny);
         }
     }
 
-    int ans = 0;
+    int t = day();
+    
+    printf("%d", t - 1);
 
-    for (int z = 0; z < h; z++) {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (box[z][i][j] == 0) {
-                    ans = -1;
-                    printf("%d", ans);
-                    return 0;
-                }
-
-                else if (ans < dist[z][i][j]) {
-                    ans = dist[z][i][j];
-                }
-            }
-            if (ans == -1) {
-                ans = -1;
-                printf("%d", ans);
-                return 0;
-            }
-        }
-    }
-    printf("%d", ans);
+    free(Q);
 
     return 0;
 }
-
-
