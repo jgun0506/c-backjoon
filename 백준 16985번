@@ -1,0 +1,146 @@
+#define _CRT_SECURE_NO_WARNINGS
+#pragma comment(linker, "/STACK:28388608")   // 8MB 스택메모리늘려줌
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+/*
+1.bfs 돌릴때 방문가능여부와 방문여부를 확실하게 구별하기
+*/
+
+int miro[5][5][5];
+int temp[5][5][5];
+bool height[5];//각층에 방문여부
+
+struct P {
+    int x;
+    int y;
+    int z;
+};
+int min_distance = 100000;//최소 거리
+
+int head, tail;
+
+int dx[6] = { 1,0,-1,0 ,0,0 };
+int dy[6] = { 0,1,0,-1 ,0,0 };
+int dz[6] = { 0,0,0,0,1,-1 };
+
+void push(struct P Q[], int z, int x, int y) {
+    Q[tail].x = x;
+    Q[tail].y = y;
+    Q[tail].z = z;
+    tail++;
+}
+
+void pop() {
+    head++;
+}
+
+int bfs() {//현재 temp 미로의 최단거리를 리턴하자
+    if (temp[0][0][0] == 0 || temp[4][4][4] == 0)//입출구 막혀잇으면 불가능
+        return -1;
+
+    head = 0;
+    tail = 0;
+    int dist[5][5][5];
+
+    for (int z = 0; z < 5; z++) {//-1로 초기화해서 방문한칸이 아니면 -1
+        for (int x = 0; x < 5; x++) {
+            for (int y = 0; y < 5; y++) {
+                dist[z][x][y] = -1;//-1로 초기화하면 방문하지않은칸:-1로 확인가능
+            }
+        }
+    }
+
+    struct P Q[10000];
+
+    push(Q, 0, 0, 0);//입구
+    dist[0][0][0] = 0;//시작칸 0으로 초기화
+
+    while (head != tail) {
+        struct P cur = Q[head];
+        pop();
+
+        for (int dir = 0; dir < 6; dir++) {
+            int nx = cur.x + dx[dir];
+            int ny = cur.y + dy[dir];
+            int nz = cur.z + dz[dir];
+
+            if (nx < 0 || nx >= 5 || ny < 0 || ny >= 5 || nz < 0 || nz >= 5)
+                continue;
+            if (temp[nz][nx][ny] != 1 || dist[nz][nx][ny] != -1)//들어갈수 있는칸이 아니거나 이미 방문한 칸이면 스킵
+                continue;
+      
+            dist[nz][nx][ny] = dist[cur.z][cur.x][cur.y] + 1;
+            push(Q, nz, nx, ny);
+        }
+    }
+
+    return dist[4][4][4];
+}
+
+void turn(int arr[5][5], int spin, int floor) {//i층을 j번회전시킨것을 temp에 저장
+    int tmp[5][5];
+    
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            tmp[i][j] = arr[i][j];
+            temp[floor][i][j] = arr[i][j];
+        }
+    }
+
+    while (spin--) {//시계방향으로 spin번 회전시키기
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                temp[floor][i][j] = tmp[4 - j][i];
+            }
+        }
+        for (int i = 0; i < 5; i++) {//이 반복문의 존재이유:회전 시키기 전의 상태를 보존시켜놔야 다음상태로 갈수잇음
+            for (int j = 0; j < 5; j++) {
+                tmp[i][j] = temp[floor][i][j];
+            }
+        }
+    }
+}
+
+
+void func(int k) {//현재 쌓인 층수
+    if (k == 5) {//임의의 미로가 완성되엇으면 bfs돌려서 최단거리 계산하기
+        int distance = bfs();
+        if (distance < min_distance && distance >= 12) 
+            min_distance = distance;        
+        
+        return;
+    }
+
+    for (int i = 0; i < 5; i++) {//5층까지
+        if (height[i] == 1)//만약 i층에 방문했다면
+            continue;
+        for (int j = 0; j < 4; j++) {
+            turn(miro[i], j, k);//i층을 j번회전시킨것을 temp에 저장
+            height[i] = 1;//방문했으니 체크
+            func(k + 1);
+            height[i] = 0;
+        }
+    }
+}
+
+int main(){
+    for (int k = 0; k < 5; k++) {//일단 입력받자
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                scanf("%d", &miro[k][i][j]);
+            }
+        }
+    }
+    func(0);
+    if (min_distance != 100000)//만약 모든경우의수 중 통과가능한게 없을경우
+        printf("%d", min_distance);
+    else 
+        printf("%d", -1);
+
+    return 0;
+}
