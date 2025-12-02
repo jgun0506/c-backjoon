@@ -1,0 +1,67 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+/*
+1.memset 함수가 시간초과의 원인이 될수 있음
+2.42~45줄의 역할:ㅏㅜㅗㅓ를 어떻게 백트래킹에서 탐색을 할수잇을까
+*/
+int n, m;
+int board[501][501];
+int visited[501][501];
+int total;
+int max_total;
+
+int dx[4] = { 1,0,-1,0 };
+int dy[4] = { 0,1,0,-1 };
+
+int ax(int a, int b) {//a,b중 더 큰 숫자 return
+    return a > b ? a : b;
+}
+
+void func(int k,int x,int y) {//k:누적된 칸의 갯수, x,y:이번차례에 더해야할위치
+    if (k == 4) {
+        max_total = ax(total, max_total);
+        return;
+    }
+    for (int dir = 0; dir < 4; dir++) {
+        int nx = x + dx[dir];
+        int ny = y + dy[dir];
+
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m)
+            continue;
+        if (visited[nx][ny])//방문한적이 있을경우
+            continue;
+        total += board[nx][ny];//해당위치의 숫자를 더해줌
+        visited[nx][ny] = 1;
+        func(k + 1, nx, ny);
+
+        if (k == 2)//여기 if문을 이해하려면 백트래킹에서 가지를 뻗어나가고
+            func(k + 1, x, y);//가지를 치는과정을 정확하게 이해해야함
+        visited[nx][ny] = 0;//42~43줄 전에 func(k+1,x,y)를 하면
+        total -= board[nx][ny];//가지 뻗고 돌아올때 정보를 활용할수잇음
+    
+    }
+}
+
+int main(){
+    scanf("%d %d", &n, &m);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            scanf("%d", &board[i][j]);
+        }
+    }
+    for (int i = 0; i < n; i++) {//한붓그리기 가능한 형태만 카운트
+        for (int j = 0; j < m; j++) {
+            visited[i][j] = 1;
+            total = board[i][j];
+            func(1, i, j);
+            visited[i][j] = 0;
+        }
+    }
+    printf("%d", max_total);
+    return 0;
+}
