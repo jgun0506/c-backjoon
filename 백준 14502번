@@ -1,0 +1,115 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+int n, m;
+int room[10][10];
+int temp[10][10];//바이러스가 퍼지기 전의 상태 저장해야함
+int count_virus;//바이러스의 갯수
+int max_safe_room = 0;
+
+int dx[4] = { 0,1,0,-1 };
+int dy[4] = { 1,0,-1,0 };
+
+int head, tail;
+
+struct P {
+    short x;
+    short y;
+};
+struct P virus[10];
+
+void push(struct P* Q,int x,int y) {
+    Q[tail].x = x;
+    Q[tail].y = y;
+    tail++;
+}
+
+void pop() {
+    head++;
+}
+
+int bfs() {//현재 방 상태에 대하여 bfs를 돌려 안전한 방이 몇개잇는지 return
+    struct P Q[100];
+    int safe_room = 0;
+    head = 0;
+    tail = 0;
+
+    for (int i = 0; i < count_virus; i++) {
+        push(Q, virus[i].x, virus[i].y);//바이러스 발원지를 모두 스택에 넣기
+    }
+
+    while (head != tail) {
+        struct P cur = Q[head];
+        pop();
+
+        for (int dir = 0; dir < 4; dir++) {
+            int nx = cur.x + dx[dir];
+            int ny = cur.y + dy[dir];
+            
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m)
+                continue;
+            if (room[nx][ny] == 1 || room[nx][ny] == 2)
+                continue;
+            room[nx][ny] = 2;//바이러스 확산
+            push(Q, nx, ny);
+        }
+    }
+
+    for (int i = 0; i < n; i++) {//안전한 방의 갯수 세기
+        for (int j = 0; j < m; j++) {
+            if (room[i][j] == 0)
+                safe_room++;
+        }
+    }
+    memcpy(room, temp, sizeof(temp));//바이러스 확산 전 으로 복구시키기
+
+    return safe_room;
+}
+
+void func(int k) {
+    if (k == 3) {//3개의 벽을 모두 설치했으면 bfs 돌려서 방의갯수 확인하기
+        int count = bfs();
+        if (count > max_safe_room) {
+            max_safe_room = count;
+        }
+        return;
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (room[i][j] == 1 || room[i][j] == 2)
+                continue;//만약 벽이 이미설치되있거나 바이러스가 있으면 스킵
+            room[i][j] = 1;//벽 설치
+            temp[i][j] = 1;
+            func(k + 1);
+            room[i][j] = 0;//벽 해제
+            temp[i][j] = 0;
+        }
+    }
+}
+
+int main(){
+    scanf("%d %d", &n, &m);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            scanf("%d", &room[i][j]);
+            if (room[i][j] == 2) {
+                virus[count_virus] = (struct P){ i,j };
+                count_virus++;
+            }
+        }
+    }
+    memcpy(temp, room, sizeof(room));
+
+    func(0);
+
+    printf("%d", max_safe_room);
+
+    return 0;
+}
