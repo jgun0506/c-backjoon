@@ -1,0 +1,62 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+int n;
+int s[20][20];
+int min_gap = 1000000;
+bool visited[20];//팀 선택 여부
+
+int total(bool a) {//팀의 능력치 구하기
+    int team = 0;
+    int member = 0;
+    int arr[10];
+
+    for (int i = 0; i < n; i++) {
+        if (visited[i] == a) 
+            arr[member++] = i;
+    }
+
+    for (int i = 0; i < member; i++) {
+        for (int j = 0; j < member; j++) {
+            if (i == j)
+                continue;
+            team += s[arr[i]][arr[j]];
+        }
+    }
+    
+    return team;
+}   
+
+void func(int k,int idx) {//링크팀 뽑힌 인원 : k
+    if (k == n / 2) {
+        int rink = total(true);
+        int start = total(false);
+        if (min_gap > abs(start - rink)) 
+            min_gap = abs(start - rink);
+        return;
+    }
+
+    for (int i = idx; i < n; i++) {
+        if (visited[i] == 1)
+            continue;
+        visited[i] = 1;
+        func(k + 1, i);
+        visited[i] = 0;
+    }
+}
+int main(){
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &s[i][j]);
+        }
+    }
+    func(0, 0);
+    printf("%d\n", min_gap);
+    return 0;
+}
