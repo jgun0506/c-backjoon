@@ -1,0 +1,126 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+int n, l;
+int map[100][100];
+int count;
+
+int leng(int x,int y,int direct) {// 길이를 return
+    //direct 0:가로, 1:세로
+    int length = 1;
+    if (direct == 0) {//가로로 측정해야하는 경우
+        int i = y;
+        while (map[x][i] == map[x][i + 1]) {
+            length++;
+            i++;
+        }
+    }
+    else if (direct == 1) {//세로로 측정해야하는 경우
+        int i = x;
+        while (map[i][y] == map[i+1][y]) {
+            length++;
+            i++;
+        }
+    }
+    return length;
+}
+
+
+int main(){
+    scanf("%d %d", &n, &l);
+    
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &map[i][j]);
+        }
+    }
+    
+    for (int i = 0; i < n; i++) {// 가로 줄 비교
+        bool possible = true;
+        int length = 1;//경사로를 놓을수 있는 여유공간
+        for (int j = 0; j < n - 1; j++) {
+            if (map[i][j] == map[i][j + 1]) {//만약 높이같으면 
+                length++;
+                continue;
+            }
+            if (abs(map[i][j] - map[i][j + 1]) != 1) {//만약 높이차 1초과
+                possible = false;
+                break;
+            }
+
+            if (map[i][j] - map[i][j + 1] == -1) { //올라가야하는경우
+                if (length >= l) {//만약 경사로 놓을수 있다면               
+                    length = 1;
+                    continue;
+                }
+                else {
+                    possible = false;
+                    break;
+                }
+            }
+           
+            else if (map[i][j] - map[i][j + 1] == 1) { //내려가야하는경우
+                length = leng(i, j + 1, 0);
+                if (length >= l) {//만약 경사로 놓을수 있다면               
+                    length = 0;
+                    j += l - 1;
+                    continue;
+                }
+                else {
+                    possible = false;
+                    break;
+                }
+            }
+        }
+        if (possible)//만약 걸리는 부분 없엇으면
+            count++;//길 개수 추가
+    }
+
+    for (int j = 0; j < n; j++) {// 세로 줄 비교
+        bool possible = true;
+        int length = 1;//경사로를 놓을수 있는 여유공간
+        for (int i = 0; i < n - 1; i++) {
+            if (map[i][j] == map[i+1][j]) {//만약 높이같으면 
+                length++;
+                continue;
+            }
+            if (abs(map[i][j] - map[i+1][j]) != 1) {//만약 높이차 1초과
+                possible = false;
+                break;
+            }
+
+            if (map[i][j] - map[i+1][j] == -1) { //올라가야하는경우
+                if (length >= l) {//만약 경사로 놓을수 있다면               
+                    length = 1;
+                    continue;
+                }
+                else {
+                    possible = false;
+                    break;
+                }
+            }
+
+            else if (map[i][j] - map[i+1][j] == 1) { //내려가야하는경우
+                length = leng(i + 1, j, 1);
+                if (length >= l) {//만약 경사로 놓을수 있다면               
+                    length = 0;
+                    i += l - 1;
+                    continue;
+                }
+                else {
+                    possible = false;
+                    break;
+                }
+            }
+        }
+        if (possible)//만약 걸리는 부분 없엇으면
+            count++;//길 개수 추가
+    }
+    printf("%d", count);
+    return 0;
+}
