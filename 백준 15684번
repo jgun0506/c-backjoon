@@ -1,0 +1,74 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+
+int n, m, h;
+int board[32][22];
+int min = 4;//4이상일수 없음
+
+bool ispossible() {//현재 사다리가 통과 가능하다면 return true
+    for (int j = 0; j < 2 * n; j += 2) {
+        int start = j;//시작지점, 사다리를 통과했을때 start==j 여야
+        for (int i = 0; i < h; i++) {
+            if (board[i][start + 1] == 1) {//만약 오른쪽에 사다리 있는 경우
+                start += 2;
+                continue;
+            }
+            else if (start >= 1 && board[i][start - 1] == 1) {//만약 왼쪽에 사다리 있는 경우
+                start -= 2;
+                continue;
+            }
+        }
+        if (start != j) {//만약 시작점과 끝점이 다를 경우
+            return false;
+        }
+    }
+    return true;
+}
+
+void func(int k) {//k는 추가한 다리의 수
+    if (ispossible()) {
+        if (min > k)
+            min = k;
+        return;
+    }
+    if (k == 3) {
+        return;
+    }
+    
+    for (int i = 0; i < h; i++) {
+        for (int j = 1; j <= n * 2 - 3; j += 2) {
+            if (board[i][j] == 1)
+                continue;
+            if ((j > 2 && board[i][j - 2] == 1) || board[i][j + 2] == 1)
+                continue;//연속으로 사다리 있으면 안됨
+
+            board[i][j] = 1;//사다리 추가
+            func(k + 1);
+            board[i][j] = 0;
+        }
+    }
+}
+
+int main(){
+    
+    scanf("%d %d %d", &n, &m, &h);
+
+    for (int i = 0; i < m; i++) {
+        int a, b;
+        scanf("%d %d", &a, &b);
+        board[a - 1][b * 2 - 1] = 1;
+    }
+    
+    func(0);
+
+    if (min == 4) 
+        printf("%d", -1);
+    else 
+        printf("%d", min);
+    return 0;
+}
