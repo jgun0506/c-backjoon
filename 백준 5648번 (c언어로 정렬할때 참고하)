@@ -1,0 +1,56 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>    // srand, rand 함수가 선언된 헤더 파일
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <math.h>
+#include <ctype.h>
+
+char arr[1000000][20];
+
+int compare(const void* a,const void* b) {
+    long long x = atoll((const char*)a);
+    long long y = atoll((const char*)b);
+    if (x > y) return 1;
+    if (x < y) return -1;
+    return 0;
+}
+
+void swap(char* a, char* b) {
+    char temp[20];
+    strcpy(temp, a);
+    strcpy(a, b);
+    strcpy(b, temp);
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        scanf("%s", arr[i]);
+    }
+
+    for (int i = 0; i < n; i++) {//숫자 반전시키기
+        int len = strlen(arr[i]);
+        for (int j = 0; j < len / 2; j++) {
+            char temp = arr[i][j];
+            arr[i][j] = arr[i][len - j - 1];
+            arr[i][len - j - 1] = temp;
+        }
+        int a = 0;
+        while (arr[i][a] == '0') {
+            a++;
+        }
+        strcpy(arr[i], arr[i] + a);
+    }
+
+    qsort(arr, n, sizeof(char)*20, compare);
+
+    for (int i = 0; i < n; i++) {
+        printf("%s\n", arr[i]);
+    }
+
+    return 0;
+}
