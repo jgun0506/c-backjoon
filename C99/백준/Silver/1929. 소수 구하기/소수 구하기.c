@@ -7,32 +7,29 @@
 #include <ctype.h>
 #include <math.h>
 
+bool state[1000001] = { true, };
 
-bool isprime(int a) {
-    if (a == 1)
-        return 0;
+void sieve(int n) {
+    state[1] = false;
 
-    for (int i = 2; i * i <= a; i++) {
-        if (a % i == 0) {
-            return 0;
-        }
+    for (int i = 2; i * i <= n; i++) {
+        if (!state[i]) continue;
+        for (int j = i * i; j <= n; j += i)
+            state[j] = false;
     }
-    return 1;
-
 }
 
 int main() {
     int m, n;
     
     scanf("%d %d", &m, &n);
-    
+    memset(state, 1, sizeof(state));
+
+    sieve(n);
     for (int i = m; i <= n; i++) {
-        if (isprime(i)) {
+        if (state[i])
             printf("%d\n", i);
-        }
     }
-
-
 
     return 0;
 }  
