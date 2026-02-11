@@ -1,0 +1,45 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <deque>
+
+int s[100005][2];//0:num,1:index
+
+using namespace std;
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    while (1) {
+        int n;
+        int pos = 0;
+        long long max = 0;//오버플로우 가능성
+        cin >> n;
+        if (n == 0)
+            break;
+        int num;
+        int i = 0;
+        while (n--) {
+            cin >> num;
+            int idx = i;//이게 핵심
+            while (pos > 0 && s[pos - 1][0] > num) {
+                pos--;
+                idx = s[pos][1];//가장 마지막에 pop한 
+                              //index를 꼭 업데이트 해야함
+            }
+            if (pos == 0 || s[pos - 1][0] != num) {//같지않으면 push
+                s[pos][0] = num;
+                s[pos][1] = idx;
+                pos++;
+            }
+            for (int j = 0; j < pos; j++) {
+                //오버플로우 생각해주기
+                if (max < (long long)(i - s[j][1] + 1) * s[j][0])
+                    max = (long long)(i - s[j][1] + 1) * s[j][0];
+            }
+            i++;
+        }
+        cout << max << "\n";
+    }
+    return 0;
+}
