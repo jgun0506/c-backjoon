@@ -21,19 +21,18 @@ int main() {
         for (int dir : {cur - 1, cur + 1, 2 * cur}) {
 
             if (dir < 0 || dir > 200000 || dist[dir] <= dist[cur])
+                //dist[dir] <= dist[cur] 의 의미: 
+                // dist[dir],dist[cur] 둘다 방문한적이 있는데 만약 dist[dir]>dist[cur] 이면 최솟값을 만들어줄때 필요없는 계산이기에 스킵
                 continue;
             if (dir == 2 * cur) {
-                if (dist[dir] > dist[cur])
-                    dist[dir] = dist[cur];
+                dist[dir] = dist[cur];
                 Q.push(dir);
                 continue;
             }
-            if (dist[dir] > dist[cur] + 1)
-                dist[dir] = dist[cur] + 1;
+            dist[dir] = dist[cur] + 1;
             Q.push(dir);
         }
     }
     cout << dist[k];
-
     return 0;
 }
