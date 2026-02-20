@@ -2,7 +2,6 @@
 
 int dist[200005];
 int ans[200005];
-int root[200005];
 using namespace std;
 int main() {
     ios::sync_with_stdio(0);
@@ -27,20 +26,20 @@ int main() {
             q.push(dir);
         }
     }
-
     cout << dist[k] << "\n";
 
     int i = dist[k];
-    int m = i;
+    stack<int> s;
+
     while (i >= 0) {
-        root[i] = k;
+        s.push(k);
         k = ans[k];
         i--;
     }
 
-    for (int j = 0; j <= m; j++) {
-        cout << root[j] << ' ';
+    while (!s.empty()) {
+        cout << s.top() << ' ';
+        s.pop();
     }
-
     return 0;
 }
