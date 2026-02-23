@@ -1,0 +1,94 @@
+#include <bits/stdc++.h>
+
+/*
+밤에 벽 부수면 +2를 하기때문에 dist값이 더큰게 먼저 도착할수잇음
+그래서 먼저 도착한 dist 값과 앞으로 넣어줄 dist 값의 대소비교가 필수적임
+각 칸의 dist 값은 최솟값이 되어야하기때문
+*/
+
+char board[1005][1005];
+int dist[1005][1005][12];
+int dx[4] = { 0,1,0,-1 };
+int dy[4] = { 1,0,-1,-0 };
+
+using namespace std;
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+
+    int n, m, k;
+    cin >> n >> m >> k;
+
+    for (int i = 0; i < n; i++) {
+        cin >> board[i];
+    }
+
+    queue <tuple<int, int, int>> q;
+    q.push({ 0, 0, 0 });
+    dist[0][0][0] = 1;
+
+    while (!q.empty()) {
+        auto [cur_x, cur_y, nk] = q.front();
+        q.pop();
+        for (int dir = 0; dir < 4; dir++) {
+            int nx = cur_x + dx[dir];
+            int ny = cur_y + dy[dir];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m)
+                continue;
+
+            if (dist[nx][ny][nk] > 0) {//더 작은 값이 나오면 덮어씌어야함
+                //nx,ny 좌표에서 모든 경우의수
+                if (dist[nx][ny][nk] <= dist[cur_x][cur_y][nk] + 1) {
+                    continue;
+                }
+            }
+
+            if (dist[nx][ny][nk + 1] > 0) {
+                if (board[nx][ny] == '1') {//벽 만나면
+                    if (nk >= k) //벽을 못부수는 경우라면
+                        continue;
+                    if (dist[cur_x][cur_y][nk] % 2 == 1) {//낮
+                        if (dist[nx][ny][nk + 1] <= (dist[cur_x][cur_y][nk] + 1)) {
+                            continue;
+                        }
+                    }
+                    else {//밤
+                        if (dist[nx][ny][nk + 1] <= (dist[cur_x][cur_y][nk] + 2)) {
+                            continue;
+                        }
+                    }
+                }
+            }
+            if (board[nx][ny] == '1') {//벽을만날경우 벽을 부숴야만 push 가능
+                if (nk >= k) //벽을 못부수는 경우라면
+                    continue;
+                if (dist[cur_x][cur_y][nk] % 2 == 1) {//낮이라면
+                    dist[nx][ny][nk + 1] = dist[cur_x][cur_y][nk] + 1;
+                    q.push({ nx, ny, nk + 1 });
+                }
+                else {//밤이라면
+                    dist[nx][ny][nk + 1] = dist[cur_x][cur_y][nk] + 2;//하룻밤 더지새워야함
+                    q.push({ nx, ny, nk + 1 });
+                }
+            }
+            else {//그냥 이동할경우
+                dist[nx][ny][nk] = dist[cur_x][cur_y][nk] + 1;
+                q.push({ nx, ny, nk });
+            }
+        }
+    }
+
+    int ans = 999999;
+    for (int i = 0; i <= k; i++) {
+        if (dist[n - 1][m - 1][i] != 0)
+            ans = min(ans, dist[n - 1][m - 1][i]);
+    }
+
+    if (ans == 999999)
+        cout << -1;
+    else
+        cout << ans;
+
+    return 0;
+}
